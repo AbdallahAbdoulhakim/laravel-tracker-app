@@ -1,0 +1,25 @@
+services:
+  database:
+    image: postgres:17-alpine
+    container_name: daily_pg
+    restart: always
+    environment:
+      POSTGRES_DB: daily
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: fe3b29f4617b65f18a5e3185bf30c4de
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer:latest
+    container_name: daily_adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+
+volumes:
+  pgdata:
