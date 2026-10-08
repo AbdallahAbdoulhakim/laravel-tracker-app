@@ -18,8 +18,8 @@ use Illuminate\Database\Eloquent\Builder;
  * @property string|null $completed_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Category|null $category
- * @property-read User $user
+ * @property-read \App\Models\Category|null $category
+ * @property-read \App\Models\User $user
  * @method static Builder<static>|Task newModelQuery()
  * @method static Builder<static>|Task newQuery()
  * @method static Builder<static>|Task query()

@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property Carbon|null $updated_at
  * @property-read Collection<int, \App\Models\Task> $tasks
  * @property-read int|null $tasks_count
- * @property-read User $user
+ * @property-read \App\Models\User $user
  * @method static Builder<static>|Category newModelQuery()
  * @method static Builder<static>|Category newQuery()
  * @method static Builder<static>|Category query()

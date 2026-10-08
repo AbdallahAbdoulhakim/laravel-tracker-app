@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -12,31 +15,16 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-
-        $requestData = $request->validate(
-            [
-                'email' => 'required|email',
-                'password' => 'required',
-                'remember' => 'nullable|boolean',
-            ],
-            [
-                'email.required' => 'Please enter your email',
-                'email.email' => 'Please enter a valid email address',
-                'password.required' => 'Please enter a password',
-            ]
-        );
-
         if (Auth::attempt($request->only(['email', 'password']), $request->boolean('remeber'))) {
             // Authentication passed
-
             $request->session()->regenerate();
-
             return redirect()->intended(route('dashboard', false));
         }
 
-        return back()->withErrors(['email' => 'These credentials do not match our records!']);
+
+        return back()->withInput()->withErrors(['email' => 'These credentials do not match our records!']);
     }
 
     public function showRegistrationForm()
@@ -44,8 +32,18 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    public function register()
+    public function register(RegisterRequest $request)
     {
+        $validated = $request->validated();
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated('password')),
+        ]);
+
+        Auth::login($user);
+
         return 'register';
     }
 }

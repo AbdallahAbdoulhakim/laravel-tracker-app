@@ -28,3 +28,4 @@ Thumbs.db
 _ide_helper.php
 /database/pgdata
 compose.yaml
+vite.config.js
