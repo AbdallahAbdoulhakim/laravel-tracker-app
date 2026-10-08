@@ -27,3 +27,4 @@ Homestead.yaml
 Thumbs.db
 _ide_helper.php
 /database/pgdata
+compose.yaml
