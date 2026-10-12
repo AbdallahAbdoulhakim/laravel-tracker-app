@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\PasswordResetController;
@@ -46,4 +47,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::redirect('/', '/dashboard');
+
+    Route::resource('categories', CategoryController::class)
+        ->except(['show'])
+        ->middlewareFor(['edit', 'update', 'destroy'], 'can:manage,category');
 });

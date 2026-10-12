@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property int $id
@@ -18,8 +19,9 @@ use Illuminate\Database\Eloquent\Builder;
  * @property string|null $completed_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Category|null $category
- * @property-read \App\Models\User $user
+ * @property-read Category|null $category
+ * @property-read User $user
+ *
  * @method static Builder<static>|Task newModelQuery()
  * @method static Builder<static>|Task newQuery()
  * @method static Builder<static>|Task query()
@@ -33,10 +35,23 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static Builder<static>|Task whereTitle($value)
  * @method static Builder<static>|Task whereUpdatedAt($value)
  * @method static Builder<static>|Task whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class Task extends Model
 {
+    use HasUuids;
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
+    public function uniqueIds()
+    {
+        return ['uuid'];
+    }
+
     protected function casts()
     {
         return [
@@ -51,7 +66,7 @@ class Task extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function category(): BelongsTo 
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
