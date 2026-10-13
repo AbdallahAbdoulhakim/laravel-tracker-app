@@ -3,11 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\ValidationException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,19 +28,19 @@ class AppServiceProvider extends ServiceProvider
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Too many login attempts. Please try again later',
-                    429
+                    429,
                 ]);
             }
 
             return back()->withErrors([
-                'email' => 'Too many login attempts. Please try again later.'
+                'email' => 'Too many login attempts. Please try again later.',
             ])->withInput($request->except('password'));
         };
 
         RateLimiter::for('login', function (Request $request) use ($loginRateLimitResponse) {
             return [
                 Limit::perMinute(100)->by($request->ip())->response($loginRateLimitResponse),
-                Limit::perMinute(5)->by($request->input('email'))->response($loginRateLimitResponse)
+                Limit::perMinute(5)->by($request->input('email'))->response($loginRateLimitResponse),
             ];
         });
 

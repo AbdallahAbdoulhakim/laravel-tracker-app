@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class UpdateCategoryRequest extends FormRequest
 {
@@ -13,7 +13,7 @@ class UpdateCategoryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->category->user_id === Auth::user()->id;
+        return $this->user()->can('manage', $this->category);
     }
 
     /**
@@ -24,7 +24,11 @@ class UpdateCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:5000'],
+            'category' => ['bail', 'nullable', 'uuid', Rule::exists('categories', 'uuid')->where('user_id', $this->user()->id)],
+            'task_date' => ['nullable', 'date_format:Y-m-d'],
+            'is_recurring' => ['boolean'],
         ];
     }
 }

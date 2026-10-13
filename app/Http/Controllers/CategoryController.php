@@ -18,7 +18,7 @@ class CategoryController extends Controller
 
         $categories = $user->categories()->latest('updated_at')->latest('id')->paginate(10);
 
-        return view('categories.index', ['categories' => $categories]);
+        return view('categories.index', ['categories' => $categories->toResourceCollection()->resolve(), 'links' => fn () => $categories->links(), 'hasPages' => $categories->hasPages()]);
     }
 
     /**

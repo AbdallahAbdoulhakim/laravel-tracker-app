@@ -4,7 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Categories') }}
             </h2>
-            @if ($categories->isNotEmpty())
+            @if ($categories)
                 <a href="{{ route('categories.create') }}"
                     class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
                     {{ __('New Category') }}
@@ -23,33 +23,33 @@
                         <li class="flex items-center justify-between gap-4 px-6 py-4">
                             <div class="min-w-0">
                                 <p class="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    {{ $category->name }}
+                                    {{ $category['name'] }}
                                 </p>
                                 <p class="mt-1 flex flex-wrap gap-x-3 text-xs text-gray-500 dark:text-gray-400">
                                     <span>
                                         {{ __('Created') }}
-                                        <time datetime="{{ $category->created_at?->toIso8601String() }}"
-                                            title="{{ $category->created_at?->toDayDateTimeString() }}">
-                                            {{ $category->created_at?->diffForHumans() }}
+                                        <time datetime="{{ $category['created_at'] }}"
+                                            title="{{ $category['created_at'] }}">
+                                            {{ $category['created_at'] }}
                                         </time>
                                     </span>
                                     <span>
                                         {{ __('Updated') }}
-                                        <time datetime="{{ $category->updated_at?->toIso8601String() }}"
-                                            title="{{ $category->updated_at?->toDayDateTimeString() }}">
-                                            {{ $category->updated_at?->diffForHumans() }}
+                                        <time datetime="{{ $category['updated_at'] }}"
+                                            title="{{ $category['updated_at'] }}">
+                                            {{ $category['updated_at'] }}
                                         </time>
                                     </span>
                                 </p>
                             </div>
 
                             <div class="flex shrink-0 items-center gap-4">
-                                <a href="{{ route('categories.edit', $category) }}"
+                                <a href="{{ route('categories.edit', $category['id']) }}"
                                     class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
                                     {{ __('Edit') }}
                                 </a>
 
-                                <form method="POST" action="{{ route('categories.destroy', $category) }}"
+                                <form method="POST" action="{{ route('categories.destroy', $category['id']) }}"
                                     onsubmit="return confirm('{{ __('Delete this category?') }}');">
                                     @csrf
                                     @method('DELETE')
@@ -75,9 +75,9 @@
                 </ul>
             </div>
 
-            @if ($categories->hasPages())
+            @if ($hasPages)
                 <div class="mt-4 px-4 sm:px-0">
-                    {{ $categories->links() }}
+                    {{ }}
                 </div>
             @endif
         </div>
