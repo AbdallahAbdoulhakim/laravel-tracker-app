@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict 1b4vWdQ9S9e8y5GywAcE1b4vX1ps3jYSUx2uMAg2yrJSN1FNe2xrUHTvoeImYCL
+\restrict n1yYZbt2fSCjdxiVkBp8IUSQU9Ve2LvOgQrutPrUwKkGXJ8CRWUFvFIIB37BPWW
 
--- Dumped from database version 17.11
--- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
+-- Dumped from database version 18.6
+-- Dumped by pg_dump version 18.6 (Ubuntu 18.6-1.pgdg24.04+2)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -54,7 +54,8 @@ CREATE TABLE public.categories (
     user_id bigint NOT NULL,
     name character varying(255) NOT NULL,
     created_at timestamp(0) without time zone,
-    updated_at timestamp(0) without time zone
+    updated_at timestamp(0) without time zone,
+    uuid uuid NOT NULL
 );
 
 
@@ -206,6 +207,46 @@ CREATE TABLE public.password_reset_tokens (
 
 
 --
+-- Name: recurring_tasks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.recurring_tasks (
+    id bigint NOT NULL,
+    uuid uuid NOT NULL,
+    user_id bigint,
+    category_id bigint,
+    title character varying(255) NOT NULL,
+    description character varying(255),
+    frequency_config json,
+    start_date date,
+    end_date date,
+    deleted_at timestamp(0) without time zone,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    frequency character varying(255)
+);
+
+
+--
+-- Name: recurring_tasks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.recurring_tasks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: recurring_tasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.recurring_tasks_id_seq OWNED BY public.recurring_tasks.id;
+
+
+--
 -- Name: sessions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -229,11 +270,12 @@ CREATE TABLE public.tasks (
     category_id bigint,
     title character varying(255) NOT NULL,
     description text,
-    is_recurring boolean DEFAULT false NOT NULL,
-    task_date timestamp(0) without time zone,
+    task_date date NOT NULL,
     completed_at timestamp(0) without time zone,
     created_at timestamp(0) without time zone,
-    updated_at timestamp(0) without time zone
+    updated_at timestamp(0) without time zone,
+    uuid uuid NOT NULL,
+    recurring_task_id bigint
 );
 
 
@@ -268,7 +310,8 @@ CREATE TABLE public.users (
     password character varying(255) NOT NULL,
     remember_token character varying(100),
     created_at timestamp(0) without time zone,
-    updated_at timestamp(0) without time zone
+    updated_at timestamp(0) without time zone,
+    uuid uuid NOT NULL
 );
 
 
@@ -320,6 +363,13 @@ ALTER TABLE ONLY public.migrations ALTER COLUMN id SET DEFAULT nextval('public.m
 
 
 --
+-- Name: recurring_tasks id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurring_tasks ALTER COLUMN id SET DEFAULT nextval('public.recurring_tasks_id_seq'::regclass);
+
+
+--
 -- Name: tasks id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -355,6 +405,14 @@ ALTER TABLE ONLY public.cache
 
 ALTER TABLE ONLY public.categories
     ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: categories categories_uuid_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.categories
+    ADD CONSTRAINT categories_uuid_unique UNIQUE (uuid);
 
 
 --
@@ -406,6 +464,22 @@ ALTER TABLE ONLY public.password_reset_tokens
 
 
 --
+-- Name: recurring_tasks recurring_tasks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurring_tasks
+    ADD CONSTRAINT recurring_tasks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: recurring_tasks recurring_tasks_uuid_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurring_tasks
+    ADD CONSTRAINT recurring_tasks_uuid_unique UNIQUE (uuid);
+
+
+--
 -- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -422,6 +496,14 @@ ALTER TABLE ONLY public.tasks
 
 
 --
+-- Name: tasks tasks_uuid_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tasks
+    ADD CONSTRAINT tasks_uuid_unique UNIQUE (uuid);
+
+
+--
 -- Name: users users_email_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -435,6 +517,14 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_uuid_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_uuid_unique UNIQUE (uuid);
 
 
 --
@@ -509,11 +599,35 @@ ALTER TABLE ONLY public.categories
 
 
 --
+-- Name: recurring_tasks recurring_tasks_category_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurring_tasks
+    ADD CONSTRAINT recurring_tasks_category_id_foreign FOREIGN KEY (category_id) REFERENCES public.categories(id) ON DELETE SET NULL;
+
+
+--
+-- Name: recurring_tasks recurring_tasks_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurring_tasks
+    ADD CONSTRAINT recurring_tasks_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
 -- Name: tasks tasks_category_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tasks
     ADD CONSTRAINT tasks_category_id_foreign FOREIGN KEY (category_id) REFERENCES public.categories(id) ON DELETE SET NULL;
+
+
+--
+-- Name: tasks tasks_recurring_task_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tasks
+    ADD CONSTRAINT tasks_recurring_task_id_foreign FOREIGN KEY (recurring_task_id) REFERENCES public.recurring_tasks(id);
 
 
 --
@@ -528,16 +642,16 @@ ALTER TABLE ONLY public.tasks
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 1b4vWdQ9S9e8y5GywAcE1b4vX1ps3jYSUx2uMAg2yrJSN1FNe2xrUHTvoeImYCL
+\unrestrict n1yYZbt2fSCjdxiVkBp8IUSQU9Ve2LvOgQrutPrUwKkGXJ8CRWUFvFIIB37BPWW
 
 --
 -- PostgreSQL database dump
 --
 
-\restrict UaRxS1sPFC7DD5VrTOCgNjwhS46Y5YnPEsCsD5c8e9i5b1HfEec1tGTOtFaa6N7
+\restrict T0GStYecaRzBibEhLaUdhc7hOGBgdjqvGNgnK3G4N61jdO8WYK6Qvrj34mOI37p
 
--- Dumped from database version 17.11
--- Dumped by pg_dump version 18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)
+-- Dumped from database version 18.6
+-- Dumped by pg_dump version 18.6 (Ubuntu 18.6-1.pgdg24.04+2)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -561,6 +675,11 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 3	0001_01_01_000002_create_jobs_table	1
 4	2026_10_08_054239_create_categories_table	1
 5	2026_10_08_054244_create_tasks_table	1
+6	2026_10_12_054023_add_uuid_to_tables	2
+7	2026_10_14_044825_create_recurring_tasks_table	2
+8	2026_10_14_050715_add_recurring_task_id_to_task_and_category_table	2
+9	2026_10_14_120404_add_frequencty_to_recurring_tasks_table	3
+10	2026_10_14_122249_change_task_date_to_date_type	4
 \.
 
 
@@ -568,12 +687,12 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.migrations_id_seq', 5, true);
+SELECT pg_catalog.setval('public.migrations_id_seq', 10, true);
 
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict UaRxS1sPFC7DD5VrTOCgNjwhS46Y5YnPEsCsD5c8e9i5b1HfEec1tGTOtFaa6N7
+\unrestrict T0GStYecaRzBibEhLaUdhc7hOGBgdjqvGNgnK3G4N61jdO8WYK6Qvrj34mOI37p
 

@@ -8,10 +8,11 @@
 
 
 
+
     <!-- Title -->
     <div>
         <x-input-label for="title" :value="__('Title')" />
-        <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="old('title', $task['title'])" required
+        <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="old('title', $task['title'] ?? null)" required
             autofocus maxlength="255" />
         <x-input-error :messages="$errors->get('title')" class="mt-2" />
     </div>
@@ -20,7 +21,7 @@
     <div>
         <x-input-label for="description" :value="__('Description')" />
         <textarea id="description" name="description" rows="4" maxlength="5000"
-            class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('description', $task['description']) }}</textarea>
+            class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('description', $task['description'] ?? null) }}</textarea>
         <x-input-error :messages="$errors->get('description')" class="mt-2" />
     </div>
 
@@ -47,7 +48,7 @@
     </div>
 
     <!-- Recurring -->
-    <div>
+    {{-- <div>
         <input type="hidden" name="is_recurring" value="0">
         <label for="is_recurring" class="inline-flex items-center">
             <input id="is_recurring" type="checkbox" name="is_recurring" value="1"
@@ -56,7 +57,7 @@
             <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Recurring task') }}</span>
         </label>
         <x-input-error :messages="$errors->get('is_recurring')" class="mt-2" />
-    </div>
+    </div> --}}
 
     <div class="flex items-center justify-end gap-3">
         <x-text-link :href="route('tasks.index')">{{ __('Cancel') }}</x-text-link>

@@ -32,6 +32,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|Category whereName($value)
  * @method static Builder<static>|Category whereUpdatedAt($value)
  * @method static Builder<static>|Category whereUserId($value)
+ * @method static CategoryFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Category whereUuid($value)
  *
  * @mixin \Eloquent
  */

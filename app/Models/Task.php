@@ -18,14 +18,15 @@ use Illuminate\Support\Carbon;
  * @property int $user_id
  * @property int|null $category_id
  * @property string $title
+ * @property int|null $recurring_task_id
  * @property string|null $description
- * @property bool $is_recurring
  * @property Carbon|null $task_date
  * @property Carbon|null $completed_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Category|null $category
  * @property-read User $user
+ * @property-read RecurringTask|null $recurringTask
  *
  * @method static Builder<static>|Task newModelQuery()
  * @method static Builder<static>|Task newQuery()
@@ -40,10 +41,14 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|Task whereTitle($value)
  * @method static Builder<static>|Task whereUpdatedAt($value)
  * @method static Builder<static>|Task whereUserId($value)
+ * @method static \Database\Factories\TaskFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Task filter(array $filters)
+ * @method static Builder<static>|Task whereRecurringTaskId($value)
+ * @method static Builder<static>|Task whereUuid($value)
  *
  * @mixin \Eloquent
  */
-#[Fillable(['title', 'description', 'category_id', 'task_date', 'is_recurring'])]
+#[Fillable(['title', 'user_id', 'description', 'category_id', 'recurring_task_id', 'task_date'])]
 class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */
@@ -62,7 +67,6 @@ class Task extends Model
     protected function casts()
     {
         return [
-            'is_recurring' => 'boolean',
             'task_date' => 'datetime',
             'completed_at' => 'datetime',
         ];
@@ -76,6 +80,11 @@ class Task extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function recurringTask(): BelongsTo
+    {
+        return $this->belongsTo(RecurringTask::class);
     }
 
     /**
