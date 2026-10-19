@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\TaskFrequency;
+use Database\Factories\RecurringTaskFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $category_id
  * @property string $title
  * @property string|null $description
- * @property string|null $frequency
+ * @property TaskFrequency|null $frequency
  * @property array<array-key, mixed>|null $frequency_config
  * @property Carbon|null $start_date
  * @property Carbon|null $end_date
@@ -51,6 +52,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|RecurringTask whereUuid($value)
  * @method static Builder<static>|RecurringTask withTrashed(bool $withTrashed = true)
  * @method static Builder<static>|RecurringTask withoutTrashed()
+ * @method static RecurringTaskFactory factory($count = null, $state = [])
  *
  * @mixin \Eloquent
  */
@@ -58,7 +60,23 @@ use Illuminate\Support\Carbon;
 
 class RecurringTask extends Model
 {
+    /** @use HasFactory<RecurringTaskFactory> */
     use HasFactory, HasUuids, SoftDeletes;
+
+    /**
+     * The days of the week a weekly recurring task can repeat on, keyed by their lowercase English name.
+     *
+     * @var array<string, string>
+     */
+    public const WEEKDAYS = [
+        'monday' => 'Mon',
+        'tuesday' => 'Tue',
+        'wednesday' => 'Wed',
+        'thursday' => 'Thu',
+        'friday' => 'Fri',
+        'saturday' => 'Sat',
+        'sunday' => 'Sun',
+    ];
 
     public function getRouteKeyName()
     {

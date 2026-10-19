@@ -4,11 +4,16 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Tasks') }}
             </h2>
-            @if ($tasks)
-                <x-link-button :href="route('tasks.create')">
-                    {{ __('New Task') }}
-                </x-link-button>
-            @endif
+            <div class="flex items-center gap-4">
+                <x-text-link :href="route('recurring-tasks.index')">
+                    {{ __('Recurring Tasks') }}
+                </x-text-link>
+                @if ($tasks)
+                    <x-link-button :href="route('tasks.create')">
+                        {{ __('New Task') }}
+                    </x-link-button>
+                @endif
+            </div>
         </div>
     </x-slot>
 
@@ -39,11 +44,6 @@
                                         'line-through text-gray-500 dark:text-gray-400' => $task['is_completed'],
                                     ])>
                                         {{ $task['title'] }}
-                                        @if ($task['is_recurring'])
-                                            <span class="ms-1 text-xs font-normal text-gray-500 dark:text-gray-400">
-                                                ({{ __('Recurring') }})
-                                            </span>
-                                        @endif
                                     </p>
                                     @if ($task['description'])
                                         <p class="mt-1 max-w-md truncate text-xs text-gray-500 dark:text-gray-400">

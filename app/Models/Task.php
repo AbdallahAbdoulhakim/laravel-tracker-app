@@ -36,7 +36,6 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|Task whereCreatedAt($value)
  * @method static Builder<static>|Task whereDescription($value)
  * @method static Builder<static>|Task whereId($value)
- * @method static Builder<static>|Task whereIsRecurring($value)
  * @method static Builder<static>|Task whereTaskDate($value)
  * @method static Builder<static>|Task whereTitle($value)
  * @method static Builder<static>|Task whereUpdatedAt($value)

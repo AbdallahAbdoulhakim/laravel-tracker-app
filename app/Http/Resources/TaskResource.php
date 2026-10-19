@@ -27,7 +27,6 @@ class TaskResource extends JsonResource
                 'name' => $this->category->name,
             ]),
             'task_date' => $this->task_date?->format('M d, Y'),
-            'is_recurring' => $this->is_recurring,
             'is_completed' => $this->completed_at !== null,
         ];
     }

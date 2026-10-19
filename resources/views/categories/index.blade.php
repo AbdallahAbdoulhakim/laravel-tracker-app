@@ -76,8 +76,8 @@
             </div>
 
             @if ($hasPages)
-                <div class="mt-4 px-4 sm:px-0">
-                    {{ }}
+                 <div class="px-4 sm:px-0 mt-4">
+                    {{ $links() }}
                 </div>
             @endif
         </div>

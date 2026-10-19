@@ -47,18 +47,6 @@
         </div>
     </div>
 
-    <!-- Recurring -->
-    {{-- <div>
-        <input type="hidden" name="is_recurring" value="0">
-        <label for="is_recurring" class="inline-flex items-center">
-            <input id="is_recurring" type="checkbox" name="is_recurring" value="1"
-                class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
-                @checked(old('is_recurring', $task['is_recurring']))>
-            <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Recurring task') }}</span>
-        </label>
-        <x-input-error :messages="$errors->get('is_recurring')" class="mt-2" />
-    </div> --}}
-
     <div class="flex items-center justify-end gap-3">
         <x-text-link :href="route('tasks.index')">{{ __('Cancel') }}</x-text-link>
 

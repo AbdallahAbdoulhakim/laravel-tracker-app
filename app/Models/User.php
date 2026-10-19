@@ -31,6 +31,8 @@ use Illuminate\Support\Carbon;
  * @property-read int|null $categories_count
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
+ * @property-read Collection<int, RecurringTask> $recurringTasks
+ * @property-read int|null $recurring_tasks_count
  * @property-read Collection<int, Task> $tasks
  * @property-read int|null $tasks_count
  *
@@ -88,5 +90,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
+    }
+
+    public function recurringTasks(): HasMany
+    {
+        return $this->hasMany(RecurringTask::class);
     }
 }

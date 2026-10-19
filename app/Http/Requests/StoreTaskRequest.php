@@ -28,7 +28,6 @@ class StoreTaskRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:5000'],
             'category' => ['bail', 'nullable', 'uuid', Rule::exists('categories', 'uuid')->where('user_id', $this->user()->id)],
             'task_date' => ['nullable', 'date_format:Y-m-d'],
-            'is_recurring' => ['boolean'],
         ];
     }
 

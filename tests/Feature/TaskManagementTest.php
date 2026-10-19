@@ -90,7 +90,6 @@ test('a user can create a task in one of their categories', function () {
             'description' => 'Cover the task feature',
             'category' => $category->uuid,
             'task_date' => '2026-10-13',
-            'is_recurring' => '1',
         ])
         ->assertRedirect(route('tasks.index'))
         ->assertSessionHas('success');
@@ -100,7 +99,6 @@ test('a user can create a task in one of their categories', function () {
     expect($task->title)->toBe('Write tests')
         ->and($task->category_id)->toBe($category->id)
         ->and($task->task_date->toDateString())->toBe('2026-10-13')
-        ->and($task->is_recurring)->toBeTrue()
         ->and($task->completed_at)->toBeNull();
 });
 

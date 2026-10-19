@@ -5,11 +5,14 @@ namespace App\Console\Commands;
 use App\Enums\TaskFrequency;
 use App\Models\RecurringTask;
 use App\Models\Task;
+use DateTime;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 #[Signature('app:generate-recurring-tasks {date? : The day to generate tasks for}')]
 #[Description('Command description')]
@@ -20,68 +23,68 @@ class GenerateRecurringTasks extends Command
      */
     public function handle()
     {
-        // 1. Determine which date we're generating the tasks for (default it to today)
+        $created = 0;
+        $skipped = 0;
+
+         // 1. Determine which date we're generating the tasks for (default it to today)
         $targetDate = $this->argument('date')
             ? Carbon::parse($this->argument('date'))
             : today();
 
-        // 2. Find all recurring task templates that are within their date range and are not marked as soft deleted
+        $recurringTasksQuery = RecurringTask::query()
+            ->where(fn(Builder $query) => $query->whereNull('start_date')->orWhere('start_date','<=', $targetDate))
+            ->where(fn(Builder $query)=> $query->whereNull('end_date')->orWhere('end_date','>=', $targetDate))
+            ->whereDoesntHave('tasks', fn(Builder $query)=> $query->whereDate('task_date', $targetDate));
 
-        $recurringTasks = RecurringTask::query()
-            ->where(fn (Builder $query) => $query->whereNull('start_date')
-                ->orWhere('start_date', '<=', $targetDate)
-            )
-            ->where(fn (Builder $query) => $query->whereNull('end_date')
-                ->orWhere('end_date', '>=', $targetDate))
-            ->get();
 
-        if ($recurringTasks->isEmpty()) {
+        if (!$recurringTasksQuery->count()) {
             $this->info('No active recurring tasks found.');
 
             return self::FAILURE;
         }
 
-        $this->info("Processing {$recurringTasks->count()} recurring task templates ...");
 
-        $created = 0;
-        $skipped = 0;
+        $this->info("Processing {$recurringTasksQuery->count()} recurring task templates ...");
 
-        foreach ($recurringTasks as $recurringTask) {
-            // 3. For each recurring template, check if we should generate a task for this date based on frequency rules
-            if (! $this->isRecurringTaskDue($recurringTask, $targetDate)) {
-                $skipped++;
+       $recurringTasksQuery->chunkById(250, function(Collection $recurringTasks) use($targetDate, &$skipped, &$created){
+            try {
+                $insertTasksBatch = [];
+                foreach ($recurringTasks as $recurringTask){
+                    try {
+                        if (!$this->isRecurringTaskDue($recurringTask, $targetDate)){
+                            $skipped ++;
+                            continue;
+                        }
 
-                continue;
+                        $now = new DateTime();
+
+                        $insertTasksBatch[] = [
+                            'uuid' => (string) Str::uuid(),
+                            'user_id' => $recurringTask->user_id,
+                            'category_id' => $recurringTask->category_id,
+                            'title' => $recurringTask->title,
+                            'description' => $recurringTask->description,
+                            'recurring_task_id' => $recurringTask->id,
+                            'task_date' => $targetDate,
+                            'created_at' => $now,
+                            'updated_at' => $now
+
+                        ];
+
+                        if ($insertTasksBatch) {
+                            Task::insert($insertTasksBatch);
+                            $created += count($insertTasksBatch);
+                        }
+                    } catch (\Exception $err) {
+                       report($err);
+                    }
+                }
+            } catch (\Exception $err) {
+                report($err);
             }
 
-            // 4. Verify we haven't already generated this task to prevent duplicates
-            $exists = Task::query()->where('recurring_task_id', $recurringTask->id)
-                ->whereDate('task_date', $targetDate)->exists();
-
-            if ($exists) {
-                $skipped++;
-
-                continue;
-            }
-
-            // 5. Create the task instance
-
-            Task::create([
-                'user_id' => $recurringTask->user_id,
-                'category_id' => $recurringTask->category_id,
-                'title' => $recurringTask->title,
-                'description' => $recurringTask->description,
-                'recurring_task_id' => $recurringTask->id,
-                'task_date' => $targetDate,
-            ]);
-
-            $created++;
-
-            // 6. Check if any recurring tasks have passed their end date and soft delte them
-
-        }
-
-        $expired = RecurringTask::query()->whereNotNull('end_date')->where('end_date', '<', $targetDate)->delete();
+       });
+        
         // 7. Output feedback so we know what happened
 
         $this->info("Created {$created} recurring tasks.");
@@ -90,9 +93,7 @@ class GenerateRecurringTasks extends Command
             $this->warn("Skipped {$skipped} recurring tasks.");
         }
 
-        if ($expired > 0) {
-            $this->info("Archived {$expired} expired recurring tasks.");
-        }
+       
 
         $this->newLine();
 
